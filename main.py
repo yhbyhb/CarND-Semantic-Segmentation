@@ -55,34 +55,32 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
     :return: The Tensor for the last layer of output
     """
     # TODO: Implement function
-    vgg_layer7_filter_num = vgg_layer7_out.get_shape().as_list()[-1]
-    vgg_layer4_filter_num = vgg_layer4_out.get_shape().as_list()[-1]
-    vgg_layer3_filter_num = vgg_layer3_out.get_shape().as_list()[-1]
 
     l2_scale = 1e-3
+    regularizer = tf.contrib.layers.l2_regularizer(l2_scale)
 
-    conv_1x1_layer7_out = tf.layers.conv2d(vgg_layer7_out, vgg_layer7_filter_num, 1, padding='same',
-                                kernel_regularizer=tf.contrib.layers.l2_regularizer(l2_scale))
+    conv_1x1_layer7_out = tf.layers.conv2d(vgg_layer7_out, num_classes, 1, padding='same',
+                                kernel_regularizer=regularizer)
 
-    trans_layer7_out = tf.layers.conv2d_transpose(conv_1x1_layer7_out, vgg_layer4_filter_num, 4, 2, padding='same',
-                                        kernel_regularizer=tf.contrib.layers.l2_regularizer(l2_scale))
+    trans_layer7_out = tf.layers.conv2d_transpose(conv_1x1_layer7_out, num_classes, 4, 2, padding='same',
+                                        kernel_regularizer=regularizer)
 
-    conv_1x1_layer4_out = tf.layers.conv2d(vgg_layer4_out, vgg_layer4_filter_num, 1, padding='same',
-                                kernel_regularizer=tf.contrib.layers.l2_regularizer(l2_scale))
+    conv_1x1_layer4_out = tf.layers.conv2d(vgg_layer4_out, num_classes, 1, padding='same',
+                                kernel_regularizer=regularizer)
 
     added_layer4_out = tf.add(trans_layer7_out, conv_1x1_layer4_out)
 
-    trans_layer4_out = tf.layers.conv2d_transpose(added_layer4_out, vgg_layer3_filter_num, 4, 2, padding='same',
-                                        kernel_regularizer=tf.contrib.layers.l2_regularizer(l2_scale))
+    trans_layer4_out = tf.layers.conv2d_transpose(added_layer4_out, num_classes, 4, 2, padding='same',
+                                        kernel_regularizer=regularizer)
 
 
-    conv_1x1_layer3_out = tf.layers.conv2d(vgg_layer3_out, vgg_layer3_filter_num, 1, padding='same',
-                                kernel_regularizer=tf.contrib.layers.l2_regularizer(l2_scale))
+    conv_1x1_layer3_out = tf.layers.conv2d(vgg_layer3_out, num_classes, 1, padding='same',
+                                kernel_regularizer=regularizer)
 
     added_layer4_out = tf.add(trans_layer4_out, conv_1x1_layer3_out)
 
     trans_layer3_out = tf.layers.conv2d_transpose(added_layer4_out, num_classes, 16, 8, padding='same',
-                                        kernel_regularizer=tf.contrib.layers.l2_regularizer(l2_scale))
+                                        kernel_regularizer=regularizer)
 
     return trans_layer3_out
 tests.test_layers(layers)
@@ -128,7 +126,7 @@ def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_l
     :param learning_rate: TF Placeholder for learning rate
     """
     # TODO: Implement function
-    lr = 0.001
+    lr = 0.0001
     dropout_keep_prob = 0.5
     for e in range(epochs):
         trained_image_num = 0
@@ -159,8 +157,8 @@ tests.test_train_nn(train_nn)
 def run():
     num_classes = 2
     image_shape = (160, 576)
-    epochs = 50
-    batch_size = 32
+    epochs = 20
+    batch_size = 16
 
     data_dir = './data'
     runs_dir = './runs'
