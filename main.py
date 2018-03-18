@@ -77,9 +77,9 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
     conv_1x1_layer3_out = tf.layers.conv2d(vgg_layer3_out, vgg_layer3_filter_num, 1, padding='same',
                                 kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
 
-    added_layer4_out = tf.add(trans_layer4_out, conv_1x1_layer3_out)
+    added_layer3_out = tf.add(trans_layer4_out, conv_1x1_layer3_out)
 
-    trans_layer3_out = tf.layers.conv2d_transpose(added_layer4_out, num_classes, 16, 8, padding='same',
+    trans_layer3_out = tf.layers.conv2d_transpose(added_layer3_out, num_classes, 16, 8, padding='same',
                                         kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
 
     return trans_layer3_out
@@ -131,19 +131,13 @@ def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_l
     for e in range(epochs):
         trained_image_num = 0
         for images, labels in get_batches_fn(batch_size):
-            sess.run(train_op, feed_dict={input_image: images,
+            _, loss = sess.run([train_op, cross_entropy_loss], 
+                                feed_dict={input_image: images,
                                           correct_label: labels,
                                           keep_prob: dropout_keep_prob,
                                           learning_rate: lr})
 
             trained_image_num += len(images)
-
-            loss = sess.run(cross_entropy_loss,
-                            feed_dict={input_image: images,
-                                       correct_label: labels,
-                                       keep_prob: 1.0,
-                                       learning_rate: lr})
-
 
             print("Epoch {}/{}, images {}, loss : {}, ".format(e+1, epochs, trained_image_num, loss))
         # validation_accuracy = evaluate(X_valid_norm, y_valid)
@@ -183,17 +177,14 @@ def run():
         # TODO: Build NN using load_vgg, layers, and optimize function
         input_image, keep_prob, layer3_out, layer4_out, layer7_out = load_vgg(sess, vgg_path)
 
-        print(tf.trainable_variables())
-
         output = layers(layer3_out, layer4_out, layer7_out, num_classes)
         learning_rate = tf.placeholder(tf.float32, name='learning_rate')
         correct_label = tf.placeholder(tf.int32, (None, image_shape[0], image_shape[1], num_classes))
         logits, train_op, cross_entropy_loss = optimize(output, correct_label, learning_rate, num_classes)
 
         # TODO: Train NN using the train_nn function
-        print()
-        print(tf.trainable_variables())
-        print()
+
+        # print(tf.trainable_variables())
         sess.run(tf.global_variables_initializer())
         train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_loss, input_image,
              correct_label, keep_prob, learning_rate)
