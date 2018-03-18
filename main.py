@@ -100,8 +100,9 @@ def optimize(nn_last_layer, correct_label, learning_rate, num_classes):
     labels = tf.reshape(correct_label, (-1, num_classes))
 
     loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=labels))
+    beta = 0.01
     l2_loss = tf.losses.get_regularization_loss()
-    cross_entropy_loss = loss + l2_loss
+    cross_entropy_loss = loss + beta * l2_loss
     optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
     train_op = optimizer.minimize(cross_entropy_loss)
 
