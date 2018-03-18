@@ -59,28 +59,30 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
     vgg_layer4_filter_num = vgg_layer4_out.get_shape().as_list()[-1]
     vgg_layer3_filter_num = vgg_layer3_out.get_shape().as_list()[-1]
 
+    l2_scale = 1e-3
+
     conv_1x1_layer7_out = tf.layers.conv2d(vgg_layer7_out, vgg_layer7_filter_num, 1, padding='same',
-                                kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
+                                kernel_regularizer=tf.contrib.layers.l2_regularizer(l2_scale))
 
     trans_layer7_out = tf.layers.conv2d_transpose(conv_1x1_layer7_out, vgg_layer4_filter_num, 4, 2, padding='same',
-                                        kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
+                                        kernel_regularizer=tf.contrib.layers.l2_regularizer(l2_scale))
 
     conv_1x1_layer4_out = tf.layers.conv2d(vgg_layer4_out, vgg_layer4_filter_num, 1, padding='same',
-                                kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
+                                kernel_regularizer=tf.contrib.layers.l2_regularizer(l2_scale))
 
     added_layer4_out = tf.add(trans_layer7_out, conv_1x1_layer4_out)
 
     trans_layer4_out = tf.layers.conv2d_transpose(added_layer4_out, vgg_layer3_filter_num, 4, 2, padding='same',
-                                        kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
+                                        kernel_regularizer=tf.contrib.layers.l2_regularizer(l2_scale))
 
-    
+
     conv_1x1_layer3_out = tf.layers.conv2d(vgg_layer3_out, vgg_layer3_filter_num, 1, padding='same',
-                                kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
+                                kernel_regularizer=tf.contrib.layers.l2_regularizer(l2_scale))
 
     added_layer4_out = tf.add(trans_layer4_out, conv_1x1_layer3_out)
 
     trans_layer3_out = tf.layers.conv2d_transpose(added_layer4_out, num_classes, 16, 8, padding='same',
-                                        kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
+                                        kernel_regularizer=tf.contrib.layers.l2_regularizer(l2_scale))
 
     return trans_layer3_out
 tests.test_layers(layers)
@@ -157,7 +159,7 @@ tests.test_train_nn(train_nn)
 def run():
     num_classes = 2
     image_shape = (160, 576)
-    epochs = 20
+    epochs = 50
     batch_size = 32
 
     data_dir = './data'
@@ -183,7 +185,7 @@ def run():
         # TODO: Build NN using load_vgg, layers, and optimize function
         input_image, keep_prob, layer3_out, layer4_out, layer7_out = load_vgg(sess, vgg_path)
 
-        print(tf.trainable_variables())
+        # print(tf.trainable_variables())
 
         output = layers(layer3_out, layer4_out, layer7_out, num_classes)
         learning_rate = tf.placeholder(tf.float32, name='learning_rate')
@@ -191,13 +193,19 @@ def run():
         logits, train_op, cross_entropy_loss = optimize(output, correct_label, learning_rate, num_classes)
 
         # TODO: Train NN using the train_nn function
-        print()
+
         print(tf.trainable_variables())
-        print()
         sess.run(tf.global_variables_initializer())
+
         train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_loss, input_image,
              correct_label, keep_prob, learning_rate)
-        
+
+        # graph = tf.get_default_graph()
+        # tflog_dir = './TFlog'
+        # if not os.path.exists(tflog_dir):
+        #     os.makedirs(tflog_dir)
+        # tf.summary.FileWriter(tflog_dir, graph)
+
         # TODO: Save inference data using helper.save_inference_samples
         helper.save_inference_samples(runs_dir, data_dir, sess, image_shape, logits, keep_prob, input_image)
 
