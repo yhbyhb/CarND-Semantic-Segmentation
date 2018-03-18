@@ -121,7 +121,7 @@ def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_l
     :param learning_rate: TF Placeholder for learning rate
     """
     # TODO: Implement function
-    lr = 0.0001
+    lr = 0.001
     dropout_keep_prob = 0.5
     for e in range(epochs):
         trained_image_num = 0
@@ -177,12 +177,18 @@ def run():
 
         # TODO: Build NN using load_vgg, layers, and optimize function
         input_image, keep_prob, layer3_out, layer4_out, layer7_out = load_vgg(sess, vgg_path)
+
+        print(tf.trainable_variables())
+
         output = layers(layer3_out, layer4_out, layer7_out, num_classes)
         learning_rate = tf.placeholder(tf.float32, name='learning_rate')
         correct_label = tf.placeholder(tf.int32, (None, image_shape[0], image_shape[1], num_classes))
         logits, train_op, cross_entropy_loss = optimize(output, correct_label, learning_rate, num_classes)
 
         # TODO: Train NN using the train_nn function
+        print()
+        print(tf.trainable_variables())
+        print()
         sess.run(tf.global_variables_initializer())
         train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_loss, input_image,
              correct_label, keep_prob, learning_rate)
