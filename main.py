@@ -121,7 +121,7 @@ def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_l
     :param learning_rate: TF Placeholder for learning rate
     """
     # TODO: Implement function
-    lr = 0.001
+    lr = 0.0001
     dropout_keep_prob = 0.5
     for e in range(epochs):
         trained_image_num = 0
