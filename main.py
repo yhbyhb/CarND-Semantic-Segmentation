@@ -125,17 +125,17 @@ def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_l
     dropout_keep_prob = 0.5
     for e in range(epochs):
         trained_image_num = 0
-        for image, label in get_batches_fn(batch_size):
-            sess.run(train_op, feed_dict={input_image: image,
-                                          correct_label: label,
+        for images, labels in get_batches_fn(batch_size):
+            sess.run(train_op, feed_dict={input_image: images,
+                                          correct_label: labels,
                                           keep_prob: dropout_keep_prob,
                                           learning_rate: lr})
 
             trained_image_num += len(images)
 
             loss = sess.run(cross_entropy_loss,
-                            feed_dict={input_image: image,
-                                       correct_label: label,
+                            feed_dict={input_image: images,
+                                       correct_label: labels,
                                        keep_prob: 1.0,
                                        learning_rate: lr})
 
