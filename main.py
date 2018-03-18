@@ -55,29 +55,31 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
     :return: The Tensor for the last layer of output
     """
     # TODO: Implement function
+    vgg_layer7_filter_num = vgg_layer7_out.get_shape().as_list()[-1]
+    vgg_layer4_filter_num = vgg_layer4_out.get_shape().as_list()[-1]
+    vgg_layer3_filter_num = vgg_layer3_out.get_shape().as_list()[-1]
 
-    conv_1x1_layer7_out = tf.layers.conv2d(vgg_layer7_out, num_classes, 1, padding='same',
+    conv_1x1_layer7_out = tf.layers.conv2d(vgg_layer7_out, vgg_layer7_filter_num, 1, padding='same',
                                 kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
 
-    trans_layer7_out = tf.layers.conv2d_transpose(conv_1x1_layer7_out, num_classes, 4, 2, padding='same',
+    trans_layer7_out = tf.layers.conv2d_transpose(conv_1x1_layer7_out, vgg_layer4_filter_num, 4, 2, padding='same',
                                         kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
 
-
-    conv_1x1_layer4_out = tf.layers.conv2d(vgg_layer4_out, num_classes, 1, padding='same',
+    conv_1x1_layer4_out = tf.layers.conv2d(vgg_layer4_out, vgg_layer4_filter_num, 1, padding='same',
                                 kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
 
     added_layer4_out = tf.add(trans_layer7_out, conv_1x1_layer4_out)
 
-    trans_layer4_out = tf.layers.conv2d_transpose(added_layer4_out, num_classes, 4, 2, padding='same',
+    trans_layer4_out = tf.layers.conv2d_transpose(added_layer4_out, vgg_layer3_filter_num, 4, 2, padding='same',
                                         kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
 
     
-    conv_1x1_layer3_out = tf.layers.conv2d(vgg_layer3_out, num_classes, 1, padding='same',
+    conv_1x1_layer3_out = tf.layers.conv2d(vgg_layer3_out, vgg_layer3_filter_num, 1, padding='same',
                                 kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
 
-    added_layer3_out = tf.add(trans_layer4_out, conv_1x1_layer3_out)
+    added_layer4_out = tf.add(trans_layer4_out, conv_1x1_layer3_out)
 
-    trans_layer3_out = tf.layers.conv2d_transpose(added_layer3_out, num_classes, 16, 8, padding='same',
+    trans_layer3_out = tf.layers.conv2d_transpose(added_layer4_out, num_classes, 16, 8, padding='same',
                                         kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
 
     return trans_layer3_out
@@ -154,7 +156,7 @@ tests.test_train_nn(train_nn)
 def run():
     num_classes = 2
     image_shape = (160, 576)
-    epochs = 100
+    epochs = 20
     batch_size = 32
 
     data_dir = './data'
