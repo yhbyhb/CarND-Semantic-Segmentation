@@ -77,9 +77,9 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
     conv_1x1_layer3_out = tf.layers.conv2d(vgg_layer3_out, num_classes, 1, padding='same',
                                 kernel_regularizer=regularizer)
 
-    added_layer4_out = tf.add(trans_layer4_out, conv_1x1_layer3_out)
+    added_layer3_out = tf.add(trans_layer4_out, conv_1x1_layer3_out)
 
-    trans_layer3_out = tf.layers.conv2d_transpose(added_layer4_out, num_classes, 16, 8, padding='same',
+    trans_layer3_out = tf.layers.conv2d_transpose(added_layer3_out, num_classes, 16, 8, padding='same',
                                         kernel_regularizer=regularizer)
 
     return trans_layer3_out
@@ -183,8 +183,6 @@ def run():
         # TODO: Build NN using load_vgg, layers, and optimize function
         input_image, keep_prob, layer3_out, layer4_out, layer7_out = load_vgg(sess, vgg_path)
 
-        # print(tf.trainable_variables())
-
         output = layers(layer3_out, layer4_out, layer7_out, num_classes)
         learning_rate = tf.placeholder(tf.float32, name='learning_rate')
         correct_label = tf.placeholder(tf.int32, (None, image_shape[0], image_shape[1], num_classes))
@@ -192,17 +190,11 @@ def run():
 
         # TODO: Train NN using the train_nn function
 
-        print(tf.trainable_variables())
+        # print(tf.trainable_variables())
         sess.run(tf.global_variables_initializer())
 
         train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_loss, input_image,
              correct_label, keep_prob, learning_rate)
-
-        # graph = tf.get_default_graph()
-        # tflog_dir = './TFlog'
-        # if not os.path.exists(tflog_dir):
-        #     os.makedirs(tflog_dir)
-        # tf.summary.FileWriter(tflog_dir, graph)
 
         # TODO: Save inference data using helper.save_inference_samples
         helper.save_inference_samples(runs_dir, data_dir, sess, image_shape, logits, keep_prob, input_image)
