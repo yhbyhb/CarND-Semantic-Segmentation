@@ -135,11 +135,6 @@ def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_l
             trained_image_num += len(images)
 
             print("Epoch {}/{}, images {}, loss : {}, ".format(e+1, epochs, trained_image_num, loss))
-        # validation_accuracy = evaluate(X_valid_norm, y_valid)
-        # print()
-        # print("EPOCH {} ...".format(i+1))
-        # print("Validation Accuracy = {:.3f}".format(validation_accuracy))
-        # print()
 tests.test_train_nn(train_nn)
 
 
