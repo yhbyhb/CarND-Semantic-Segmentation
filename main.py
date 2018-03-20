@@ -56,31 +56,27 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
     """
     # TODO: Implement function
 
-    l2_scale = 1e-3
-    regularizer = tf.contrib.layers.l2_regularizer(l2_scale)
-
     conv_1x1_layer7_out = tf.layers.conv2d(vgg_layer7_out, num_classes, 1, padding='same',
-                                kernel_regularizer=regularizer)
+                                kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
 
     trans_layer7_out = tf.layers.conv2d_transpose(conv_1x1_layer7_out, num_classes, 4, 2, padding='same',
-                                        kernel_regularizer=regularizer)
+                                        kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
 
     conv_1x1_layer4_out = tf.layers.conv2d(vgg_layer4_out, num_classes, 1, padding='same',
-                                kernel_regularizer=regularizer)
+                                kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
 
     added_layer4_out = tf.add(trans_layer7_out, conv_1x1_layer4_out)
 
     trans_layer4_out = tf.layers.conv2d_transpose(added_layer4_out, num_classes, 4, 2, padding='same',
-                                        kernel_regularizer=regularizer)
-
-
+                                        kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
+    
     conv_1x1_layer3_out = tf.layers.conv2d(vgg_layer3_out, num_classes, 1, padding='same',
-                                kernel_regularizer=regularizer)
+                                kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
 
     added_layer3_out = tf.add(trans_layer4_out, conv_1x1_layer3_out)
 
     trans_layer3_out = tf.layers.conv2d_transpose(added_layer3_out, num_classes, 16, 8, padding='same',
-                                        kernel_regularizer=regularizer)
+                                        kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
 
     return trans_layer3_out
 tests.test_layers(layers)
@@ -131,33 +127,22 @@ def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_l
     for e in range(epochs):
         trained_image_num = 0
         for images, labels in get_batches_fn(batch_size):
-            sess.run(train_op, feed_dict={input_image: images,
+            _, loss = sess.run([train_op, cross_entropy_loss], 
+                                feed_dict={input_image: images,
                                           correct_label: labels,
                                           keep_prob: dropout_keep_prob,
                                           learning_rate: lr})
 
             trained_image_num += len(images)
 
-            loss = sess.run(cross_entropy_loss,
-                            feed_dict={input_image: images,
-                                       correct_label: labels,
-                                       keep_prob: 1.0,
-                                       learning_rate: lr})
-
-
             print("Epoch {}/{}, images {}, loss : {}, ".format(e+1, epochs, trained_image_num, loss))
-        # validation_accuracy = evaluate(X_valid_norm, y_valid)
-        # print()
-        # print("EPOCH {} ...".format(i+1))
-        # print("Validation Accuracy = {:.3f}".format(validation_accuracy))
-        # print()
 tests.test_train_nn(train_nn)
 
 
 def run():
     num_classes = 2
     image_shape = (160, 576)
-    epochs = 20
+    epochs = 100
     batch_size = 16
 
     data_dir = './data'
