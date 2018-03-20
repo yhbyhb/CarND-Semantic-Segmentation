@@ -55,28 +55,29 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
     :return: The Tensor for the last layer of output
     """
     # TODO: Implement function
+    l2_scale = 1e-3
 
     conv_1x1_layer7_out = tf.layers.conv2d(vgg_layer7_out, num_classes, 1, padding='same',
-                                kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
+                                kernel_regularizer=tf.contrib.layers.l2_regularizer(l2_scale))
 
     trans_layer7_out = tf.layers.conv2d_transpose(conv_1x1_layer7_out, num_classes, 4, 2, padding='same',
-                                        kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
+                                        kernel_regularizer=tf.contrib.layers.l2_regularizer(l2_scale))
 
     conv_1x1_layer4_out = tf.layers.conv2d(vgg_layer4_out, num_classes, 1, padding='same',
-                                kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
+                                kernel_regularizer=tf.contrib.layers.l2_regularizer(l2_scale))
 
     added_layer4_out = tf.add(trans_layer7_out, conv_1x1_layer4_out)
 
     trans_layer4_out = tf.layers.conv2d_transpose(added_layer4_out, num_classes, 4, 2, padding='same',
-                                        kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
+                                        kernel_regularizer=tf.contrib.layers.l2_regularizer(l2_scale))
     
     conv_1x1_layer3_out = tf.layers.conv2d(vgg_layer3_out, num_classes, 1, padding='same',
-                                kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
+                                kernel_regularizer=tf.contrib.layers.l2_regularizer(l2_scale))
 
     added_layer3_out = tf.add(trans_layer4_out, conv_1x1_layer3_out)
 
     trans_layer3_out = tf.layers.conv2d_transpose(added_layer3_out, num_classes, 16, 8, padding='same',
-                                        kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
+                                        kernel_regularizer=tf.contrib.layers.l2_regularizer(l2_scale))
 
     return trans_layer3_out
 tests.test_layers(layers)
