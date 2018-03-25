@@ -24,7 +24,7 @@ This is one of example from the most recent run.
 - batch_size = 16
 - l2 regularization scale = 1e-3
 
-### Loss after 200 epochs
+### Loss after 100 epochs
 - Loss = 0.24974
 
 ![alt text][loss]
