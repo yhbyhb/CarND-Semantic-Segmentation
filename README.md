@@ -10,21 +10,21 @@ Build instruction and dependency of this project is identical to [upstream repos
 
 [//]: # (Image References)
 
-[result]: ./runs/1521720623.4380422/umm_000033.png "an example of inference image"
-[loss]: ./runs/loss_e200_1521720623.4380422.png  "loss plot"
+[result]: ./runs/1521970050.2572997/umm_000033.png "an example of inference image"
+[loss]: ./runs/loss_e100_1521970050.2572997.png  "loss plot"
 
 This is one of example from the most recent run.
 
 ![alt text][result]
 
 ### Hyper-parameters
-- epochs = 200
+- epochs = 100
 - lr = 0.0001
 - dropout_keep_prob = 0.5
 - batch_size = 16
 - l2 regularization scale = 1e-3
 
 ### Loss after 200 epochs
-- Loss = 0.032
+- Loss = 0.24974
 
 ![alt text][loss]
